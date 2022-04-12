@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // compress all responses
 app.use(compression());
 
-// 미들웨어 만들기 글 목록 읽어오기 - GET 방식으로 읽어오는 모든 페이지
+// 미들웨어 만들기 글 목록 읽어오기 - GET 방식으로 읽어오는 모든 페이지 --
 app.get('*', function (req, res, next) {
   fs.readdir('./data', function (error, filelist) {
     req.list = filelist;
