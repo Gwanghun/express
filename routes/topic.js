@@ -5,6 +5,30 @@ const sanitizeHtml = require('sanitize-html');
 const fs = require('fs');
 const template = require('../lib/template.js');
 
+const cookie = require('cookie');
+
+function authIsOwner(req) {
+  var isOwner = false;
+  var cookies = {};
+  if (req.headers.cookie) {
+    cookies = cookie.parse(req.headers.cookie);
+  }
+  if ( cookies.email && cookies.password ) {
+    isOwner = true;
+  }
+
+  return isOwner;
+}
+
+function authStatusUI(req) {
+  var authStatusUI = `<a href="/login">Login</a>`;
+  if ( authIsOwner(req) ) {
+    authStatusUI = `<a href="/logout_process">logout</a>`;
+  }
+
+  return authStatusUI;
+}
+
 router.get('/create', function (req, res) {
   var title = 'WEB - create';
   var list = template.list(req.list);
@@ -18,7 +42,7 @@ router.get('/create', function (req, res) {
         <input type="submit">
       </p>
     </form>
-  `, '');
+  `, '',authStatusUI(req));
   res.send(html);
 })
 
@@ -55,7 +79,8 @@ router.get('/update/:pageId', function (req, res) {
         </p>
       </form>
       `,
-      `<a href="/topic/create">create</a> <a href="/topic/update/${title}">update</a>`
+      `<a href="/topic/create">create</a> <a href="/topic/update/${title}">update</a>`,
+      authStatusUI(req)
     );
     res.send(html);
   });
@@ -103,7 +128,8 @@ router.get('/:pageId', function (req, res, next) {
           <form action="/topic/delete_process" method="post">
             <input type="hidden" name="id" value="${sanitizedTitle}">
             <input type="submit" value="delete">
-          </form>`
+          </form>`,
+          authStatusUI(req)
       );
       res.send(html);
     }
